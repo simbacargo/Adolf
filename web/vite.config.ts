@@ -5,5 +5,9 @@ import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
   plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
-  allowedHosts: ["adolf.nsaro.com","https://reg.hgi.or.tz/"],
+  allowedHosts: ["adolf.nsaro.com","https://reg.hgi.or.tz"],
+  server: {
+    host: true,
+    port: 35659,
+  },
 });

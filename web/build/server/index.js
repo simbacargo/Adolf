@@ -1,11 +1,11 @@
 import { jsx, jsxs, Fragment } from "react/jsx-runtime";
 import { PassThrough } from "node:stream";
 import { createReadableStreamFromReadable } from "@react-router/node";
-import { ServerRouter, UNSAFE_withComponentProps, Outlet, UNSAFE_withErrorBoundaryProps, isRouteErrorResponse, Meta, Links, ScrollRestoration, Scripts } from "react-router";
+import { ServerRouter, UNSAFE_withComponentProps, useLoaderData, useNavigate, useLocation, Outlet, UNSAFE_withErrorBoundaryProps, isRouteErrorResponse, Meta, Links, ScrollRestoration, Scripts, NavLink, Link } from "react-router";
 import { isbot } from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
-import { useState, useEffect, useMemo } from "react";
-import { UserPlus, Users, CheckCircle2, XCircle, Search, ChevronUp, ChevronDown, Edit3, Trash2, X } from "lucide-react";
+import { useEffect, useState, useMemo } from "react";
+import { UserPlus, UserCircle, Users, CheckCircle2, XCircle, Search, ChevronUp, ChevronDown, Edit3, Trash2, X, ShieldCheck, User, Lock, Loader2, ArrowRight, ArrowLeft, KeyRound, ShieldAlert, Save } from "lucide-react";
 const streamTimeout = 5e3;
 function handleRequest(request, responseStatusCode, responseHeaders, routerContext, loadContext) {
   if (request.method.toUpperCase() === "HEAD") {
@@ -62,6 +62,16 @@ const entryServer = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineP
   default: handleRequest,
   streamTimeout
 }, Symbol.toStringTag, { value: "Module" }));
+async function loader({
+  request
+}) {
+  const url = new URL(request.url);
+  const publicPaths = ["/login"];
+  const isPublicPath = publicPaths.includes(url.pathname);
+  return {
+    isPublicPath
+  };
+}
 const links = () => [{
   rel: "preconnect",
   href: "https://fonts.googleapis.com"
@@ -91,6 +101,24 @@ function Layout({
   });
 }
 const root = UNSAFE_withComponentProps(function App() {
+  const {
+    isPublicPath
+  } = useLoaderData();
+  const navigate = useNavigate();
+  useLocation();
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token && !isPublicPath) {
+      navigate("/login", {
+        replace: true
+      });
+    }
+    if (token && isPublicPath) {
+      navigate("/", {
+        replace: true
+      });
+    }
+  }, [isPublicPath, navigate]);
   return /* @__PURE__ */ jsx(Outlet, {});
 });
 const ErrorBoundary = UNSAFE_withErrorBoundaryProps(function ErrorBoundary2({
@@ -117,7 +145,8 @@ const route0 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProper
   ErrorBoundary,
   Layout,
   default: root,
-  links
+  links,
+  loader
 }, Symbol.toStringTag, { value: "Module" }));
 const generateMembers = () => {
   const firstNames = ["Juma", "Asha", "Mwinyi", "Neema", "Baraka", "Zuwena", "Said", "Fatuma", "Elias", "Lulu"];
@@ -260,6 +289,13 @@ const MemberList = () => {
           children: [/* @__PURE__ */ jsx(UserPlus, {
             size: 22
           }), "Register Member"]
+        }), /* @__PURE__ */ jsx(NavLink, {
+          to: "/change-password",
+          title: "Settings",
+          className: "flex items-center justify-center gap-3 bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-4 rounded-2xl font-bold shadow-xl shadow-emerald-200 transition-all active:scale-95",
+          children: /* @__PURE__ */ jsx(UserCircle, {
+            size: 24
+          })
         })]
       }), /* @__PURE__ */ jsxs("div", {
         className: "grid grid-cols-1 md:grid-cols-3 gap-6 mb-10",
@@ -575,7 +611,312 @@ const route1 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProper
   __proto__: null,
   default: home
 }, Symbol.toStringTag, { value: "Module" }));
-const serverManifest = { "entry": { "module": "/assets/entry.client-BmDBpHZU.js", "imports": ["/assets/chunk-EPOLDU6W-Wp3N_t67.js"], "css": [] }, "routes": { "root": { "id": "root", "parentId": void 0, "path": "", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": true, "module": "/assets/root-CD0VWafI.js", "imports": ["/assets/chunk-EPOLDU6W-Wp3N_t67.js"], "css": ["/assets/root-CQw99d1_.css"], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/home": { "id": "routes/home", "parentId": "root", "path": void 0, "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/home-BfpSOWS9.js", "imports": ["/assets/chunk-EPOLDU6W-Wp3N_t67.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 } }, "url": "/assets/manifest-aa3e787a.js", "version": "aa3e787a", "sri": void 0 };
+const LoginPage = () => {
+  const [credentials, setCredentials] = useState({
+    username: "",
+    password: ""
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
+    try {
+      const res = await fetch("http://localhost:8080/api/login/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(credentials)
+      });
+      const data = await res.json();
+      if (res.ok && data.token) {
+        localStorage.setItem("token", data.token);
+        navigate("/");
+      } else {
+        setError("Invalid username or password. Please try again.");
+      }
+    } catch (err) {
+      setError("Connection failed. Is the server running?");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  return /* @__PURE__ */ jsxs("div", {
+    className: "min-h-screen bg-[#f8fafc] flex items-center justify-center p-6 font-sans",
+    children: [/* @__PURE__ */ jsxs("div", {
+      className: "fixed top-0 left-0 w-full h-full overflow-hidden -z-10",
+      children: [/* @__PURE__ */ jsx("div", {
+        className: "absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-50 rounded-full blur-[120px]"
+      }), /* @__PURE__ */ jsx("div", {
+        className: "absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-50 rounded-full blur-[120px]"
+      })]
+    }), /* @__PURE__ */ jsxs("div", {
+      className: "w-full max-w-[480px] animate-in fade-in zoom-in duration-500",
+      children: [/* @__PURE__ */ jsxs("div", {
+        className: "text-center mb-10",
+        children: [/* @__PURE__ */ jsx("div", {
+          className: "inline-flex items-center justify-center w-20 h-20 bg-blue-600 rounded-[28px] shadow-2xl shadow-blue-200 mb-6 text-white",
+          children: /* @__PURE__ */ jsx(ShieldCheck, {
+            size: 40
+          })
+        }), /* @__PURE__ */ jsx("h1", {
+          className: "text-4xl font-black text-slate-900 tracking-tight",
+          children: "Tanzania Registry"
+        }), /* @__PURE__ */ jsx("p", {
+          className: "text-slate-500 font-medium mt-2",
+          children: "Secure Access Gateway"
+        })]
+      }), /* @__PURE__ */ jsxs("div", {
+        className: "bg-white rounded-[32px] shadow-2xl shadow-slate-200/60 border border-slate-100 p-10",
+        children: [/* @__PURE__ */ jsxs("form", {
+          onSubmit: handleLogin,
+          className: "space-y-6",
+          children: [error && /* @__PURE__ */ jsx("div", {
+            className: "bg-rose-50 text-rose-600 p-4 rounded-2xl text-sm font-bold border border-rose-100 animate-shake",
+            children: error
+          }), /* @__PURE__ */ jsxs("div", {
+            className: "space-y-2",
+            children: [/* @__PURE__ */ jsx("label", {
+              className: "text-[10px] font-black uppercase text-slate-400 tracking-[0.15em] ml-1",
+              children: "Username"
+            }), /* @__PURE__ */ jsxs("div", {
+              className: "relative group",
+              children: [/* @__PURE__ */ jsx(User, {
+                className: "absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors",
+                size: 20
+              }), /* @__PURE__ */ jsx("input", {
+                required: true,
+                type: "text",
+                placeholder: "Enter username",
+                className: "w-full pl-14 pr-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:bg-white outline-none font-medium transition-all text-slate-700",
+                onChange: (e) => setCredentials({
+                  ...credentials,
+                  username: e.target.value
+                })
+              })]
+            })]
+          }), /* @__PURE__ */ jsxs("div", {
+            className: "space-y-2",
+            children: [/* @__PURE__ */ jsx("label", {
+              className: "text-[10px] font-black uppercase text-slate-400 tracking-[0.15em] ml-1",
+              children: "Password"
+            }), /* @__PURE__ */ jsxs("div", {
+              className: "relative group",
+              children: [/* @__PURE__ */ jsx(Lock, {
+                className: "absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors",
+                size: 20
+              }), /* @__PURE__ */ jsx("input", {
+                required: true,
+                type: "password",
+                placeholder: "••••••••",
+                className: "w-full pl-14 pr-6 py-4 bg-slate-50 border-none rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:bg-white outline-none font-medium transition-all text-slate-700",
+                onChange: (e) => setCredentials({
+                  ...credentials,
+                  password: e.target.value
+                })
+              })]
+            })]
+          }), /* @__PURE__ */ jsx("button", {
+            disabled: isLoading,
+            type: "submit",
+            className: "w-full bg-blue-600 hover:bg-blue-700 text-white py-5 rounded-[22px] font-black shadow-xl shadow-blue-200 transition-all active:scale-[0.98] flex items-center justify-center gap-3 disabled:opacity-70",
+            children: isLoading ? /* @__PURE__ */ jsx(Loader2, {
+              className: "animate-spin",
+              size: 24
+            }) : /* @__PURE__ */ jsxs(Fragment, {
+              children: ["Authenticate", /* @__PURE__ */ jsx(ArrowRight, {
+                size: 20
+              })]
+            })
+          })]
+        }), /* @__PURE__ */ jsx("div", {
+          className: "mt-10 pt-8 border-t border-slate-50 text-center",
+          children: /* @__PURE__ */ jsxs("p", {
+            className: "text-sm text-slate-400 font-medium",
+            children: ["Authorized Personnel Only.", /* @__PURE__ */ jsx("br", {}), "All access attempts are logged."]
+          })
+        })]
+      }), /* @__PURE__ */ jsx("p", {
+        className: "text-center mt-8 text-slate-400 text-xs font-bold uppercase tracking-widest",
+        children: "© 2026 Ministry of Information System"
+      })]
+    })]
+  });
+};
+const login = UNSAFE_withComponentProps(LoginPage);
+const route2 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  default: login
+}, Symbol.toStringTag, { value: "Module" }));
+const ChangePasswordPage = () => {
+  const [formData, setFormData] = useState({
+    old_password: "",
+    new_password: "",
+    confirm_password: ""
+  });
+  const [status, setStatus] = useState({
+    type: "",
+    message: ""
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+  const handleChange = async (e) => {
+    e.preventDefault();
+    if (formData.new_password !== formData.confirm_password) {
+      setStatus({
+        type: "error",
+        message: "New passwords do not match."
+      });
+      return;
+    }
+    setIsLoading(true);
+    setStatus({
+      type: "",
+      message: ""
+    });
+    const token = localStorage.getItem("token");
+    try {
+      const res = await fetch("http://localhost:8080/api/change-password/", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Token ${token}`
+        },
+        body: JSON.stringify({
+          old_password: formData.old_password,
+          new_password: formData.new_password
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setStatus({
+          type: "success",
+          message: "Password updated successfully! Redirecting..."
+        });
+        setTimeout(() => navigate("/"), 2e3);
+      } else {
+        setStatus({
+          type: "error",
+          message: data.old_password || data.new_password || "Failed to update password."
+        });
+      }
+    } catch (err) {
+      setStatus({
+        type: "error",
+        message: "Server connection error."
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  return /* @__PURE__ */ jsx("div", {
+    className: "min-h-screen bg-[#f8fafc] flex items-center justify-center p-6 font-sans",
+    children: /* @__PURE__ */ jsxs("div", {
+      className: "w-full max-w-[500px]",
+      children: [/* @__PURE__ */ jsxs(Link, {
+        to: "/",
+        className: "inline-flex items-center gap-2 text-slate-400 hover:text-blue-600 font-bold text-sm mb-8 transition-colors group",
+        children: [/* @__PURE__ */ jsx(ArrowLeft, {
+          size: 18,
+          className: "group-hover:-translate-x-1 transition-transform"
+        }), "Back to Dashboard"]
+      }), /* @__PURE__ */ jsxs("div", {
+        className: "bg-white rounded-[32px] shadow-2xl shadow-slate-200/60 border border-slate-100 overflow-hidden",
+        children: [/* @__PURE__ */ jsxs("div", {
+          className: "p-10 bg-slate-50/50 border-b border-slate-100 text-center",
+          children: [/* @__PURE__ */ jsx("div", {
+            className: "inline-flex items-center justify-center w-16 h-16 bg-white rounded-2xl shadow-sm mb-4 text-blue-600",
+            children: /* @__PURE__ */ jsx(KeyRound, {
+              size: 32
+            })
+          }), /* @__PURE__ */ jsx("h1", {
+            className: "text-2xl font-black text-slate-900 tracking-tight",
+            children: "Security Settings"
+          }), /* @__PURE__ */ jsx("p", {
+            className: "text-sm text-slate-500 font-medium",
+            children: "Update your account password"
+          })]
+        }), /* @__PURE__ */ jsxs("form", {
+          onSubmit: handleChange,
+          className: "p-10 space-y-6",
+          children: [status.message && /* @__PURE__ */ jsxs("div", {
+            className: `p-4 rounded-2xl text-sm font-bold border flex items-center gap-3 animate-in fade-in slide-in-from-top-2 ${status.type === "success" ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-rose-50 text-rose-600 border-rose-100"}`,
+            children: [status.type === "success" ? /* @__PURE__ */ jsx(CheckCircle2, {
+              size: 20
+            }) : /* @__PURE__ */ jsx(ShieldAlert, {
+              size: 20
+            }), status.message]
+          }), /* @__PURE__ */ jsxs("div", {
+            className: "space-y-2",
+            children: [/* @__PURE__ */ jsx("label", {
+              className: "text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1",
+              children: "Current Password"
+            }), /* @__PURE__ */ jsx("input", {
+              required: true,
+              type: "password",
+              className: "w-full px-5 py-4 bg-slate-100 border-none rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:bg-white outline-none font-medium transition-all",
+              onChange: (e) => setFormData({
+                ...formData,
+                old_password: e.target.value
+              })
+            })]
+          }), /* @__PURE__ */ jsx("hr", {
+            className: "border-slate-50"
+          }), /* @__PURE__ */ jsxs("div", {
+            className: "space-y-2",
+            children: [/* @__PURE__ */ jsx("label", {
+              className: "text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1",
+              children: "New Password"
+            }), /* @__PURE__ */ jsx("input", {
+              required: true,
+              type: "password",
+              className: "w-full px-5 py-4 bg-slate-100 border-none rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:bg-white outline-none font-medium transition-all",
+              onChange: (e) => setFormData({
+                ...formData,
+                new_password: e.target.value
+              })
+            })]
+          }), /* @__PURE__ */ jsxs("div", {
+            className: "space-y-2",
+            children: [/* @__PURE__ */ jsx("label", {
+              className: "text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1",
+              children: "Confirm New Password"
+            }), /* @__PURE__ */ jsx("input", {
+              required: true,
+              type: "password",
+              className: "w-full px-5 py-4 bg-slate-100 border-none rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:bg-white outline-none font-medium transition-all",
+              onChange: (e) => setFormData({
+                ...formData,
+                confirm_password: e.target.value
+              })
+            })]
+          }), /* @__PURE__ */ jsx("button", {
+            disabled: isLoading,
+            type: "submit",
+            className: "w-full bg-slate-900 hover:bg-black text-white py-5 rounded-[22px] font-black shadow-xl transition-all active:scale-[0.98] flex items-center justify-center gap-3 disabled:opacity-70 mt-4",
+            children: isLoading ? /* @__PURE__ */ jsx(Loader2, {
+              className: "animate-spin",
+              size: 24
+            }) : /* @__PURE__ */ jsxs(Fragment, {
+              children: [/* @__PURE__ */ jsx(Save, {
+                size: 20
+              }), " Update Password"]
+            })
+          })]
+        })]
+      })]
+    })
+  });
+};
+const ChangePasswordPage_default = UNSAFE_withComponentProps(ChangePasswordPage);
+const route3 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  default: ChangePasswordPage_default
+}, Symbol.toStringTag, { value: "Module" }));
+const serverManifest = { "entry": { "module": "/assets/entry.client-DA4iXG-e.js", "imports": ["/assets/chunk-EPOLDU6W-COH--sv6.js"], "css": [] }, "routes": { "root": { "id": "root", "parentId": void 0, "path": "", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": true, "module": "/assets/root-C301XSs6.js", "imports": ["/assets/chunk-EPOLDU6W-COH--sv6.js"], "css": ["/assets/root-Bia1qvlN.css"], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/home": { "id": "routes/home", "parentId": "root", "path": void 0, "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/home-BrgTsMxh.js", "imports": ["/assets/chunk-EPOLDU6W-COH--sv6.js", "/assets/createLucideIcon-zG5NMKvf.js", "/assets/circle-check-CEpkT5PV.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "login/login": { "id": "login/login", "parentId": "root", "path": "login", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/login-CT3riyMG.js", "imports": ["/assets/chunk-EPOLDU6W-COH--sv6.js", "/assets/createLucideIcon-zG5NMKvf.js", "/assets/loader-circle-C7Zx01Z4.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "login/ChangePasswordPage": { "id": "login/ChangePasswordPage", "parentId": "root", "path": "change-password", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/ChangePasswordPage-CxvB7Rwe.js", "imports": ["/assets/chunk-EPOLDU6W-COH--sv6.js", "/assets/createLucideIcon-zG5NMKvf.js", "/assets/circle-check-CEpkT5PV.js", "/assets/loader-circle-C7Zx01Z4.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 } }, "url": "/assets/manifest-a6288485.js", "version": "a6288485", "sri": void 0 };
 const assetsBuildDirectory = "build/client";
 const basename = "/";
 const future = { "unstable_optimizeDeps": false, "unstable_subResourceIntegrity": false, "unstable_trailingSlashAwareDataRequests": false, "v8_middleware": false, "v8_splitRouteModules": false, "v8_viteEnvironmentApi": false };
@@ -601,6 +942,22 @@ const routes = {
     index: true,
     caseSensitive: void 0,
     module: route1
+  },
+  "login/login": {
+    id: "login/login",
+    parentId: "root",
+    path: "login",
+    index: void 0,
+    caseSensitive: void 0,
+    module: route2
+  },
+  "login/ChangePasswordPage": {
+    id: "login/ChangePasswordPage",
+    parentId: "root",
+    path: "change-password",
+    index: void 0,
+    caseSensitive: void 0,
+    module: route3
   }
 };
 const allowedActionOrigins = false;
