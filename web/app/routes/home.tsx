@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Search, ChevronUp, ChevronDown, CheckCircle2, XCircle, Users, Calendar, UserPlus, X, Trash2, Edit3, Baby, Phone, UserCircle } from 'lucide-react';
 
 // --- DATA GENERATION (100 Members) ---
@@ -26,7 +26,7 @@ const generateMembers = () => {
 };
 
 const INITIAL_MEMBERS = generateMembers();
-
+const API_URL = 'http://localhost:8080/api/members/';
 const MemberList = () => {
   const [members, setMembers] = useState(INITIAL_MEMBERS);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -39,7 +39,14 @@ const MemberList = () => {
   });
 
   const today = new Date();
-
+  useEffect(() => {
+  const fetchMembers = async () => {
+    const response = await fetch(API_URL);
+    const data = await response.json();
+    setMembers(data);
+  };
+  fetchMembers();
+}, []);
   // --- PROCESSING LOGIC ---
   const processedData = useMemo(() => {
     return members.map(m => ({ ...m, isActive: new Date(m.expDate) > today }));
@@ -74,21 +81,36 @@ const MemberList = () => {
     setIsModalOpen(true);
   };
 
-  const deleteMember = (id) => {
-    if (window.confirm("Permanent Action: Delete this member from the registry?")) {
+  const deleteMember = async (id) => {
+  if (window.confirm("Permanent Action: Delete this member?")) {
+    const response = await fetch(`${API_URL}${id}/`, { method: 'DELETE' });
+    if (response.ok) {
       setMembers(members.filter(m => m.id !== id));
     }
-  };
+  }
+};
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  const method = editingMemberId ? 'PUT' : 'POST';
+  const url = editingMemberId ? `${API_URL}${editingMemberId}/` : API_URL;
+
+  const response = await fetch(url, {
+    method: method,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(formData),
+  });
+
+  if (response.ok) {
+    const savedMember = await response.json();
     if (editingMemberId) {
-      setMembers(members.map(m => m.id === editingMemberId ? { ...formData, id: editingMemberId } : m));
+      setMembers(members.map(m => m.id === editingMemberId ? savedMember : m));
     } else {
-      setMembers([{ ...formData, id: Date.now() }, ...members]);
+      setMembers([savedMember, ...members]);
     }
     setIsModalOpen(false);
-  };
+  }
+};
 
   return (
     <div className="min-h-screen bg-[#f8fafc] p-6 md:p-10 font-sans text-slate-900">
