@@ -148,30 +148,7 @@ const route0 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProper
   links,
   loader
 }, Symbol.toStringTag, { value: "Module" }));
-const generateMembers = () => {
-  const firstNames = ["Juma", "Asha", "Mwinyi", "Neema", "Baraka", "Zuwena", "Said", "Fatuma", "Elias", "Lulu"];
-  const lastNames = ["Kassim", "Mbeki", "Nyerere", "Mlowo", "Makamba", "Mtungi", "Chale", "Sokoine", "Mwinyi", "Moyo"];
-  const maritalOptions = ["Single", "Married", "Divorced", "Widowed"];
-  return Array.from({
-    length: 100
-  }, (_, i) => {
-    const regDate = new Date(2025, Math.floor(Math.random() * 6), Math.floor(Math.random() * 28));
-    const expDate = new Date(regDate);
-    expDate.setFullYear(expDate.getFullYear() + (Math.random() > 0.4 ? 1 : 0));
-    return {
-      id: i + 1,
-      fullName: `${firstNames[Math.floor(Math.random() * 10)]} ${lastNames[Math.floor(Math.random() * 10)]}`,
-      age: Math.floor(Math.random() * 45) + 18,
-      sex: Math.random() > 0.5 ? "Male" : "Female",
-      maritalStatus: maritalOptions[Math.floor(Math.random() * 4)],
-      children: Math.floor(Math.random() * 6),
-      phone: `+255 ${700 + Math.floor(Math.random() * 99)} ${Math.floor(1e5 + Math.random() * 9e5)}`,
-      regDate: regDate.toISOString().split("T")[0],
-      expDate: expDate.toISOString().split("T")[0]
-    };
-  });
-};
-const INITIAL_MEMBERS = generateMembers();
+const INITIAL_MEMBERS = [];
 const API_URL = "https://adolf.nsaro.com/api/members/";
 const MemberList = () => {
   const [members, setMembers] = useState(INITIAL_MEMBERS);
@@ -190,18 +167,24 @@ const MemberList = () => {
     children: 0,
     phone: "+255 ",
     regDate: "",
-    expDate: ""
+    expDate: "",
+    membershipPlan: "Basic 5,000 ($5)"
+    // Default Plan
   });
   const today = /* @__PURE__ */ new Date();
   useEffect(() => {
     const fetchMembers = async () => {
-      const response = await fetch(API_URL, {
-        headers: {
-          "Authorization": `Token ${localStorage.getItem("token")}`
-        }
-      });
-      const data = await response.json();
-      setMembers(data);
+      try {
+        const response = await fetch(API_URL, {
+          headers: {
+            "Authorization": `Token ${localStorage.getItem("token")}`
+          }
+        });
+        const data = await response.json();
+        setMembers(data);
+      } catch (error) {
+        console.error("Fetch error:", error);
+      }
     };
     fetchMembers();
   }, []);
@@ -233,7 +216,8 @@ const MemberList = () => {
       children: 0,
       phone: "+255 ",
       regDate: "",
-      expDate: ""
+      expDate: "",
+      membershipPlan: "Basic ($5)"
     });
     setIsModalOpen(true);
   };
@@ -245,7 +229,10 @@ const MemberList = () => {
   const deleteMember = async (id) => {
     if (window.confirm("Permanent Action: Delete this member?")) {
       const response = await fetch(`${API_URL}${id}/`, {
-        method: "DELETE"
+        method: "DELETE",
+        headers: {
+          "Authorization": `Token ${localStorage.getItem("token")}`
+        }
       });
       if (response.ok) {
         setMembers(members.filter((m) => m.id !== id));
@@ -259,7 +246,8 @@ const MemberList = () => {
     const response = await fetch(url, {
       method,
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "Authorization": `Token ${localStorage.getItem("token")}`
       },
       body: JSON.stringify(formData)
     });
@@ -287,19 +275,22 @@ const MemberList = () => {
             className: "text-slate-500 font-medium",
             children: "Community Member Management System"
           })]
-        }), /* @__PURE__ */ jsxs("button", {
-          onClick: openCreateModal,
-          className: "flex items-center justify-center gap-3 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-2xl font-bold shadow-xl shadow-blue-200 transition-all active:scale-95",
-          children: [/* @__PURE__ */ jsx(UserPlus, {
-            size: 22
-          }), "Register Member"]
-        }), /* @__PURE__ */ jsx(NavLink, {
-          to: "/change-password",
-          title: "Settings",
-          className: "flex items-center justify-center gap-3 bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-4 rounded-2xl font-bold shadow-xl shadow-emerald-200 transition-all active:scale-95",
-          children: /* @__PURE__ */ jsx(UserCircle, {
-            size: 24
-          })
+        }), /* @__PURE__ */ jsxs("div", {
+          className: "flex gap-3",
+          children: [/* @__PURE__ */ jsxs("button", {
+            onClick: openCreateModal,
+            className: "flex items-center justify-center gap-3 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-2xl font-bold shadow-xl shadow-blue-200 transition-all active:scale-95",
+            children: [/* @__PURE__ */ jsx(UserPlus, {
+              size: 22
+            }), "Register Member"]
+          }), /* @__PURE__ */ jsx(NavLink, {
+            to: "/change-password",
+            title: "Settings",
+            className: "flex items-center justify-center gap-3 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-4 rounded-2xl font-bold shadow-xl shadow-emerald-200 transition-all active:scale-95",
+            children: /* @__PURE__ */ jsx(UserCircle, {
+              size: 24
+            })
+          })]
         })]
       }), /* @__PURE__ */ jsxs("div", {
         className: "grid grid-cols-1 md:grid-cols-3 gap-6 mb-10",
@@ -376,7 +367,7 @@ const MemberList = () => {
               className: "sticky top-0 z-30 bg-white/95 backdrop-blur-md",
               children: /* @__PURE__ */ jsxs("tr", {
                 className: "text-slate-400 text-[10px] uppercase tracking-[0.2em] font-black",
-                children: [["fullName", "age", "sex", "maritalStatus", "children", "phone", "regDate", "expDate", "isActive"].map((key) => /* @__PURE__ */ jsx("th", {
+                children: [["fullName", "membershipPlan", "phone", "expDate", "isActive"].map((key) => /* @__PURE__ */ jsx("th", {
                   className: "px-8 py-5 border-b border-slate-100 cursor-pointer hover:text-blue-600 transition-colors",
                   onClick: () => setSortConfig({
                     key,
@@ -384,7 +375,7 @@ const MemberList = () => {
                   }),
                   children: /* @__PURE__ */ jsxs("div", {
                     className: "flex items-center gap-2",
-                    children: [key.replace(/([A-Z])/g, " $1").trim(), sortConfig.key === key && (sortConfig.direction === "asc" ? /* @__PURE__ */ jsx(ChevronUp, {
+                    children: [key === "membershipPlan" ? "Plan" : key.replace(/([A-Z])/g, " $1").trim(), sortConfig.key === key && (sortConfig.direction === "asc" ? /* @__PURE__ */ jsx(ChevronUp, {
                       size: 14
                     }) : /* @__PURE__ */ jsx(ChevronDown, {
                       size: 14
@@ -403,23 +394,14 @@ const MemberList = () => {
                   className: "px-8 py-5 font-bold text-slate-800 whitespace-nowrap",
                   children: m.fullName
                 }), /* @__PURE__ */ jsx("td", {
-                  className: "px-8 py-5 text-slate-600 font-medium",
-                  children: m.age
-                }), /* @__PURE__ */ jsx("td", {
-                  className: "px-8 py-5 text-slate-600 font-medium",
-                  children: m.sex
-                }), /* @__PURE__ */ jsx("td", {
-                  className: "px-8 py-5 text-slate-500",
-                  children: m.maritalStatus
-                }), /* @__PURE__ */ jsx("td", {
-                  className: "px-8 py-5 text-center text-slate-600 font-bold",
-                  children: m.children
+                  className: "px-8 py-5",
+                  children: /* @__PURE__ */ jsx("span", {
+                    className: "px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-xs font-bold border border-slate-200",
+                    children: m.membershipPlan || "Basic 5,000 ($3)"
+                  })
                 }), /* @__PURE__ */ jsx("td", {
                   className: "px-8 py-5 font-mono text-sm text-slate-500",
                   children: m.phone
-                }), /* @__PURE__ */ jsx("td", {
-                  className: "px-8 py-5 text-slate-500 text-sm whitespace-nowrap",
-                  children: m.regDate
                 }), /* @__PURE__ */ jsx("td", {
                   className: "px-8 py-5 text-slate-500 text-sm whitespace-nowrap",
                   children: m.expDate
@@ -501,6 +483,36 @@ const MemberList = () => {
               })
             })]
           }), /* @__PURE__ */ jsxs("div", {
+            className: "space-y-2 col-span-2",
+            children: [/* @__PURE__ */ jsx("label", {
+              className: "text-[10px] font-black uppercase text-blue-600 tracking-widest ml-1",
+              children: "Membership Plan"
+            }), /* @__PURE__ */ jsxs("div", {
+              className: "relative",
+              children: [/* @__PURE__ */ jsxs("select", {
+                required: true,
+                className: "w-full px-5 py-4 bg-blue-50/50 border-2 border-blue-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:bg-white outline-none font-bold text-blue-900 transition-all appearance-none",
+                value: formData.membershipPlan,
+                onChange: (e) => setFormData({
+                  ...formData,
+                  membershipPlan: e.target.value
+                }),
+                children: [/* @__PURE__ */ jsx("option", {
+                  value: "Basic 5,000 ($3)",
+                  children: "Basic Tier — 5,000 ( $5.00)"
+                }), /* @__PURE__ */ jsx("option", {
+                  value: "Standard 7,000 ($5)",
+                  children: "Standard Tier — 7,000 ( $7.00)"
+                }), /* @__PURE__ */ jsx("option", {
+                  value: "Premium 10,000 ($10)",
+                  children: "Premium Tier —  10,000 ($10.00)"
+                })]
+              }), /* @__PURE__ */ jsx(ChevronDown, {
+                className: "absolute right-5 top-1/2 -translate-y-1/2 text-blue-400 pointer-events-none",
+                size: 20
+              })]
+            })]
+          }), /* @__PURE__ */ jsxs("div", {
             className: "space-y-2",
             children: [/* @__PURE__ */ jsx("label", {
               className: "text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1",
@@ -536,7 +548,7 @@ const MemberList = () => {
           }), /* @__PURE__ */ jsxs("div", {
             className: "space-y-2",
             children: [/* @__PURE__ */ jsx("label", {
-              className: "text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1 text-blue-600",
+              className: "text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1",
               children: "Phone (+255)"
             }), /* @__PURE__ */ jsx("input", {
               required: true,
@@ -551,21 +563,7 @@ const MemberList = () => {
           }), /* @__PURE__ */ jsxs("div", {
             className: "space-y-2",
             children: [/* @__PURE__ */ jsx("label", {
-              className: "text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1",
-              children: "Children"
-            }), /* @__PURE__ */ jsx("input", {
-              type: "number",
-              className: "w-full px-5 py-4 bg-slate-100 border-none rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:bg-white outline-none font-medium transition-all",
-              value: formData.children,
-              onChange: (e) => setFormData({
-                ...formData,
-                children: e.target.value
-              })
-            })]
-          }), /* @__PURE__ */ jsxs("div", {
-            className: "space-y-2",
-            children: [/* @__PURE__ */ jsx("label", {
-              className: "text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1 text-emerald-600",
+              className: "text-[10px] font-black uppercase text-emerald-600 tracking-widest ml-1",
               children: "Reg. Date"
             }), /* @__PURE__ */ jsx("input", {
               required: true,
@@ -578,9 +576,9 @@ const MemberList = () => {
               })
             })]
           }), /* @__PURE__ */ jsxs("div", {
-            className: "space-y-2",
+            className: "space-y-2 col-span-2 md:col-span-1",
             children: [/* @__PURE__ */ jsx("label", {
-              className: "text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1 text-rose-600",
+              className: "text-[10px] font-black uppercase text-rose-600 tracking-widest ml-1",
               children: "Exp. Date"
             }), /* @__PURE__ */ jsx("input", {
               required: true,
@@ -668,10 +666,10 @@ const LoginPage = () => {
           })
         }), /* @__PURE__ */ jsx("h1", {
           className: "text-4xl font-black text-slate-900 tracking-tight",
-          children: "Tanzania Registry"
+          children: "HGI Foundation Tanzania"
         }), /* @__PURE__ */ jsx("p", {
           className: "text-slate-500 font-medium mt-2",
-          children: "Secure Access Gateway"
+          children: "Membership Registry "
         })]
       }), /* @__PURE__ */ jsxs("div", {
         className: "bg-white rounded-[32px] shadow-2xl shadow-slate-200/60 border border-slate-100 p-10",
@@ -745,7 +743,7 @@ const LoginPage = () => {
         })]
       }), /* @__PURE__ */ jsx("p", {
         className: "text-center mt-8 text-slate-400 text-xs font-bold uppercase tracking-widest",
-        children: "© 2026 Ministry of Information System"
+        children: "© 2026 HGI Foundation Tanzania"
       })]
     })]
   });
@@ -920,7 +918,7 @@ const route3 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProper
   __proto__: null,
   default: ChangePasswordPage_default
 }, Symbol.toStringTag, { value: "Module" }));
-const serverManifest = { "entry": { "module": "/assets/entry.client-DA4iXG-e.js", "imports": ["/assets/chunk-EPOLDU6W-COH--sv6.js"], "css": [] }, "routes": { "root": { "id": "root", "parentId": void 0, "path": "", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": true, "module": "/assets/root-C301XSs6.js", "imports": ["/assets/chunk-EPOLDU6W-COH--sv6.js"], "css": ["/assets/root-Bia1qvlN.css"], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/home": { "id": "routes/home", "parentId": "root", "path": void 0, "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/home-Msp2lRUc.js", "imports": ["/assets/chunk-EPOLDU6W-COH--sv6.js", "/assets/createLucideIcon-zG5NMKvf.js", "/assets/circle-check-CEpkT5PV.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "login/login": { "id": "login/login", "parentId": "root", "path": "login", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/login-CYjD4HRH.js", "imports": ["/assets/chunk-EPOLDU6W-COH--sv6.js", "/assets/createLucideIcon-zG5NMKvf.js", "/assets/loader-circle-C7Zx01Z4.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "login/ChangePasswordPage": { "id": "login/ChangePasswordPage", "parentId": "root", "path": "change-password", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/ChangePasswordPage-BZnZKzlA.js", "imports": ["/assets/chunk-EPOLDU6W-COH--sv6.js", "/assets/createLucideIcon-zG5NMKvf.js", "/assets/circle-check-CEpkT5PV.js", "/assets/loader-circle-C7Zx01Z4.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 } }, "url": "/assets/manifest-713a9a77.js", "version": "713a9a77", "sri": void 0 };
+const serverManifest = { "entry": { "module": "/assets/entry.client-DA4iXG-e.js", "imports": ["/assets/chunk-EPOLDU6W-COH--sv6.js"], "css": [] }, "routes": { "root": { "id": "root", "parentId": void 0, "path": "", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": true, "module": "/assets/root-Yf5coCpF.js", "imports": ["/assets/chunk-EPOLDU6W-COH--sv6.js"], "css": ["/assets/root-DLT1zAvI.css"], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/home": { "id": "routes/home", "parentId": "root", "path": void 0, "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/home-BMlXnlod.js", "imports": ["/assets/chunk-EPOLDU6W-COH--sv6.js", "/assets/createLucideIcon-zG5NMKvf.js", "/assets/circle-check-CEpkT5PV.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "login/login": { "id": "login/login", "parentId": "root", "path": "login", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/login-DWghYf4k.js", "imports": ["/assets/chunk-EPOLDU6W-COH--sv6.js", "/assets/createLucideIcon-zG5NMKvf.js", "/assets/loader-circle-C7Zx01Z4.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "login/ChangePasswordPage": { "id": "login/ChangePasswordPage", "parentId": "root", "path": "change-password", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/ChangePasswordPage-BZnZKzlA.js", "imports": ["/assets/chunk-EPOLDU6W-COH--sv6.js", "/assets/createLucideIcon-zG5NMKvf.js", "/assets/circle-check-CEpkT5PV.js", "/assets/loader-circle-C7Zx01Z4.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 } }, "url": "/assets/manifest-56d78191.js", "version": "56d78191", "sri": void 0 };
 const assetsBuildDirectory = "build/client";
 const basename = "/";
 const future = { "unstable_optimizeDeps": false, "unstable_subResourceIntegrity": false, "unstable_trailingSlashAwareDataRequests": false, "v8_middleware": false, "v8_splitRouteModules": false, "v8_viteEnvironmentApi": false };

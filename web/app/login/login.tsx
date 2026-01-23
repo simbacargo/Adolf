@@ -49,8 +49,8 @@ const LoginPage = () => {
           <div className="inline-flex items-center justify-center w-20 h-20 bg-blue-600 rounded-[28px] shadow-2xl shadow-blue-200 mb-6 text-white">
             <ShieldCheck size={40} />
           </div>
-          <h1 className="text-4xl font-black text-slate-900 tracking-tight">Tanzania Registry</h1>
-          <p className="text-slate-500 font-medium mt-2">Secure Access Gateway</p>
+          <h1 className="text-4xl font-black text-slate-900 tracking-tight">HGI Foundation Tanzania</h1>
+          <p className="text-slate-500 font-medium mt-2">Membership Registry </p>
         </div>
 
         {/* Login Card */}
@@ -117,7 +117,7 @@ const LoginPage = () => {
         </div>
         
         <p className="text-center mt-8 text-slate-400 text-xs font-bold uppercase tracking-widest">
-          © 2026 Ministry of Information System
+          © 2026 HGI Foundation Tanzania
         </p>
       </div>
     </div>
