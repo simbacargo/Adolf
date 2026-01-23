@@ -5,10 +5,25 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  redirect,
+  useLoaderData,
 } from "react-router";
 
 import type { Route } from "./+types/root";
 import "./app.css";
+
+// 1. Add a loader to check authentication status
+export async function loader({ request }: Route.LoaderArgs) {
+  const url = new URL(request.url);
+  const publicPaths = ["/login"];
+  
+  // In RR7, we check for the token. 
+  // Since localStorage isn't available on the server (if using SSR), 
+  // we usually use cookies, but for a client-side SPA approach:
+  const isPublicPath = publicPaths.includes(url.pathname);
+
+  return { isPublicPath };
+}
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -41,7 +56,28 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+import { useEffect } from "react";
+import { useNavigate, useLocation } from "react-router";
+
 export default function App() {
+  const { isPublicPath } = useLoaderData<typeof loader>();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    
+    // If no token and trying to access a private page -> Redirect to login
+    if (!token && !isPublicPath) {
+      navigate("/login", { replace: true });
+    }
+    
+    // If already has token and trying to access login -> Redirect to home
+    if (token && isPublicPath) {
+      navigate("/", { replace: true });
+    }
+  }, [isPublicPath, navigate]);
+
   return <Outlet />;
 }
 

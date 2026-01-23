@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Search, ChevronUp, ChevronDown, CheckCircle2, XCircle, Users, Calendar, UserPlus, X, Trash2, Edit3, Baby, Phone, UserCircle } from 'lucide-react';
+import { Search, ChevronUp, ChevronDown, CheckCircle2, XCircle, Users, Calendar, UserPlus, X, Trash2, Edit3, Baby, Phone, UserCircle, Link } from 'lucide-react';
+import { NavLink } from 'react-router';
 
 // --- DATA GENERATION (100 Members) ---
 const generateMembers = () => {
@@ -126,8 +127,11 @@ const MemberList = () => {
             <UserPlus size={22} />
             Register Member
           </button>
+          <NavLink to="/change-password" title="Settings" className="flex items-center justify-center gap-3 bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-4 rounded-2xl font-bold shadow-xl shadow-emerald-200 transition-all active:scale-95">
+   <UserCircle size={24} />
+</NavLink>
         </div>
-
+      
         {/* STATS CARDS */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
           <div className="bg-white p-6 rounded-[24px] shadow-sm border border-slate-200 flex items-center gap-5">
