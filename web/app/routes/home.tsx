@@ -42,7 +42,13 @@ const MemberList = () => {
   const today = new Date();
   useEffect(() => {
   const fetchMembers = async () => {
-    const response = await fetch(API_URL);
+    const response = await fetch(
+      API_URL, {
+        headers: {
+          'Authorization': `Token ${localStorage.getItem('token')}`
+        }
+      }
+    );
     const data = await response.json();
     setMembers(data);
   };
