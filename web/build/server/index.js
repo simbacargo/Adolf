@@ -148,10 +148,36 @@ const route0 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProper
   links,
   loader
 }, Symbol.toStringTag, { value: "Module" }));
-const INITIAL_MEMBERS = [{}];
+const generateMembers = () => {
+  const firstNames = ["Juma", "Asha", "Mwinyi", "Neema", "Baraka", "Zuwena", "Said", "Fatuma", "Elias", "Lulu"];
+  const lastNames = ["Kassim", "Mbeki", "Nyerere", "Mlowo", "Makamba", "Mtungi", "Chale", "Sokoine", "Mwinyi", "Moyo"];
+  const maritalOptions = ["Single", "Married", "Divorced", "Widowed"];
+  return Array.from({
+    length: 100
+  }, (_, i) => {
+    const regDate = new Date(2025, Math.floor(Math.random() * 6), Math.floor(Math.random() * 28));
+    const expDate = new Date(regDate);
+    expDate.setFullYear(expDate.getFullYear() + (Math.random() > 0.4 ? 1 : 0));
+    return {
+      id: i + 1,
+      fullName: `${firstNames[Math.floor(Math.random() * 10)]} ${lastNames[Math.floor(Math.random() * 10)]}`,
+      age: Math.floor(Math.random() * 45) + 18,
+      sex: Math.random() > 0.5 ? "Male" : "Female",
+      maritalStatus: maritalOptions[Math.floor(Math.random() * 4)],
+      children: Math.floor(Math.random() * 6),
+      phone: `+255 ${700 + Math.floor(Math.random() * 99)} ${Math.floor(1e5 + Math.random() * 9e5)}`,
+      regDate: regDate.toISOString().split("T")[0],
+      expDate: expDate.toISOString().split("T")[0]
+    };
+  });
+};
+const INITIAL_MEMBERS = generateMembers();
 const API_URL = "https://adolf.nsaro.com/api/members/";
 const MemberList = () => {
   const [members, setMembers] = useState(INITIAL_MEMBERS);
+  console.log("====================================");
+  console.log(members);
+  console.log("====================================");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingMemberId, setEditingMemberId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -180,6 +206,14 @@ const MemberList = () => {
             "Authorization": `Token ${localStorage.getItem("token")}`
           }
         });
+        if (response.status === 401) {
+          localStorage.removeItem("token");
+          window.location.reload();
+          return;
+        }
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
         setMembers(data);
       } catch (error) {
@@ -918,7 +952,7 @@ const route3 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProper
   __proto__: null,
   default: ChangePasswordPage_default
 }, Symbol.toStringTag, { value: "Module" }));
-const serverManifest = { "entry": { "module": "/assets/entry.client-DA4iXG-e.js", "imports": ["/assets/chunk-EPOLDU6W-COH--sv6.js"], "css": [] }, "routes": { "root": { "id": "root", "parentId": void 0, "path": "", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": true, "module": "/assets/root-Yf5coCpF.js", "imports": ["/assets/chunk-EPOLDU6W-COH--sv6.js"], "css": ["/assets/root-DLT1zAvI.css"], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/home": { "id": "routes/home", "parentId": "root", "path": void 0, "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/home-B2IXJTNs.js", "imports": ["/assets/chunk-EPOLDU6W-COH--sv6.js", "/assets/createLucideIcon-zG5NMKvf.js", "/assets/circle-check-CEpkT5PV.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "login/login": { "id": "login/login", "parentId": "root", "path": "login", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/login-DWghYf4k.js", "imports": ["/assets/chunk-EPOLDU6W-COH--sv6.js", "/assets/createLucideIcon-zG5NMKvf.js", "/assets/loader-circle-C7Zx01Z4.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "login/ChangePasswordPage": { "id": "login/ChangePasswordPage", "parentId": "root", "path": "change-password", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/ChangePasswordPage-BZnZKzlA.js", "imports": ["/assets/chunk-EPOLDU6W-COH--sv6.js", "/assets/createLucideIcon-zG5NMKvf.js", "/assets/circle-check-CEpkT5PV.js", "/assets/loader-circle-C7Zx01Z4.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 } }, "url": "/assets/manifest-583129ce.js", "version": "583129ce", "sri": void 0 };
+const serverManifest = { "entry": { "module": "/assets/entry.client-DA4iXG-e.js", "imports": ["/assets/chunk-EPOLDU6W-COH--sv6.js"], "css": [] }, "routes": { "root": { "id": "root", "parentId": void 0, "path": "", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": true, "module": "/assets/root-Yf5coCpF.js", "imports": ["/assets/chunk-EPOLDU6W-COH--sv6.js"], "css": ["/assets/root-DLT1zAvI.css"], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/home": { "id": "routes/home", "parentId": "root", "path": void 0, "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/home-DE79xp8p.js", "imports": ["/assets/chunk-EPOLDU6W-COH--sv6.js", "/assets/createLucideIcon-zG5NMKvf.js", "/assets/circle-check-CEpkT5PV.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "login/login": { "id": "login/login", "parentId": "root", "path": "login", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/login-DWghYf4k.js", "imports": ["/assets/chunk-EPOLDU6W-COH--sv6.js", "/assets/createLucideIcon-zG5NMKvf.js", "/assets/loader-circle-C7Zx01Z4.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "login/ChangePasswordPage": { "id": "login/ChangePasswordPage", "parentId": "root", "path": "change-password", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/ChangePasswordPage-BZnZKzlA.js", "imports": ["/assets/chunk-EPOLDU6W-COH--sv6.js", "/assets/createLucideIcon-zG5NMKvf.js", "/assets/circle-check-CEpkT5PV.js", "/assets/loader-circle-C7Zx01Z4.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 } }, "url": "/assets/manifest-102b892c.js", "version": "102b892c", "sri": void 0 };
 const assetsBuildDirectory = "build/client";
 const basename = "/";
 const future = { "unstable_optimizeDeps": false, "unstable_subResourceIntegrity": false, "unstable_trailingSlashAwareDataRequests": false, "v8_middleware": false, "v8_splitRouteModules": false, "v8_viteEnvironmentApi": false };

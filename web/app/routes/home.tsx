@@ -1,12 +1,40 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Search, ChevronUp, ChevronDown, CheckCircle2, XCircle, Users, Calendar, UserPlus, X, Trash2, Edit3, Baby, Phone, UserCircle, CreditCard } from 'lucide-react';
 import { NavLink } from 'react-router';
+import { log } from 'console';
 
-const INITIAL_MEMBERS: {}[]  = [{}];
+
+const generateMembers = () => {
+  const firstNames = ['Juma', 'Asha', 'Mwinyi', 'Neema', 'Baraka', 'Zuwena', 'Said', 'Fatuma', 'Elias', 'Lulu'];
+  const lastNames = ['Kassim', 'Mbeki', 'Nyerere', 'Mlowo', 'Makamba', 'Mtungi', 'Chale', 'Sokoine', 'Mwinyi', 'Moyo'];
+  const maritalOptions = ['Single', 'Married', 'Divorced', 'Widowed'];
+  
+  return Array.from({ length: 100 }, (_, i) => {
+    const regDate = new Date(2025, Math.floor(Math.random() * 6), Math.floor(Math.random() * 28));
+    const expDate = new Date(regDate);
+    expDate.setFullYear(expDate.getFullYear() + (Math.random() > 0.4 ? 1 : 0)); 
+    return {
+      id: i + 1,
+      fullName: `${firstNames[Math.floor(Math.random() * 10)]} ${lastNames[Math.floor(Math.random() * 10)]}`,
+      age: Math.floor(Math.random() * 45) + 18,
+      sex: Math.random() > 0.5 ? 'Male' : 'Female',
+      maritalStatus: maritalOptions[Math.floor(Math.random() * 4)],
+      children: Math.floor(Math.random() * 6),
+      phone: `+255 ${700 + Math.floor(Math.random() * 99)} ${Math.floor(100000 + Math.random() * 900000)}`,
+      regDate: regDate.toISOString().split('T')[0],
+      expDate: expDate.toISOString().split('T')[0],
+    };
+  });
+};
+
+const INITIAL_MEMBERS = generateMembers();
 const API_URL = 'https://adolf.nsaro.com/api/members/';
 
 const MemberList = () => {
   const [members, setMembers] = useState(INITIAL_MEMBERS);
+  console.log('====================================');
+  console.log(members);
+  console.log('====================================');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingMemberId, setEditingMemberId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -19,15 +47,30 @@ const MemberList = () => {
 
   const today = new Date();
 
-  useEffect(() => {
+useEffect(() => {
     const fetchMembers = async () => {
       try {
         const response = await fetch(API_URL, {
-          headers: { 'Authorization': `Token ${localStorage.getItem('token')}` }
+          headers: { 
+            'Authorization': `Token ${localStorage.getItem('token')}` 
+          }
         });
+
+        // Check for 401 Unauthorized
+        if (response.status === 401) {
+          localStorage.removeItem('token'); // Delete the invalid token
+          window.location.reload();         // Refresh the page (will likely redirect to login)
+          return;                           // Exit the function
+        }
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json();
         setMembers(data);
-      } catch (error) {
+      }
+      catch (error) {
         console.error("Fetch error:", error);
       }
     };
