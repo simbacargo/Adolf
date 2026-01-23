@@ -4,7 +4,7 @@ import { createReadableStreamFromReadable } from "@react-router/node";
 import { ServerRouter, UNSAFE_withComponentProps, Outlet, UNSAFE_withErrorBoundaryProps, isRouteErrorResponse, Meta, Links, ScrollRestoration, Scripts } from "react-router";
 import { isbot } from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
-import { useState, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { UserPlus, Users, CheckCircle2, XCircle, Search, ChevronUp, ChevronDown, Edit3, Trash2, X } from "lucide-react";
 const streamTimeout = 5e3;
 function handleRequest(request, responseStatusCode, responseHeaders, routerContext, loadContext) {
@@ -143,6 +143,7 @@ const generateMembers = () => {
   });
 };
 const INITIAL_MEMBERS = generateMembers();
+const API_URL = "https://adolf.nsaro.com/api/members/";
 const MemberList = () => {
   const [members, setMembers] = useState(INITIAL_MEMBERS);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -163,6 +164,14 @@ const MemberList = () => {
     expDate: ""
   });
   const today = /* @__PURE__ */ new Date();
+  useEffect(() => {
+    const fetchMembers = async () => {
+      const response = await fetch(API_URL);
+      const data = await response.json();
+      setMembers(data);
+    };
+    fetchMembers();
+  }, []);
   const processedData = useMemo(() => {
     return members.map((m) => ({
       ...m,
@@ -200,25 +209,36 @@ const MemberList = () => {
     setFormData(member);
     setIsModalOpen(true);
   };
-  const deleteMember = (id) => {
-    if (window.confirm("Permanent Action: Delete this member from the registry?")) {
-      setMembers(members.filter((m) => m.id !== id));
+  const deleteMember = async (id) => {
+    if (window.confirm("Permanent Action: Delete this member?")) {
+      const response = await fetch(`${API_URL}${id}/`, {
+        method: "DELETE"
+      });
+      if (response.ok) {
+        setMembers(members.filter((m) => m.id !== id));
+      }
     }
   };
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editingMemberId) {
-      setMembers(members.map((m) => m.id === editingMemberId ? {
-        ...formData,
-        id: editingMemberId
-      } : m));
-    } else {
-      setMembers([{
-        ...formData,
-        id: Date.now()
-      }, ...members]);
+    const method = editingMemberId ? "PUT" : "POST";
+    const url = editingMemberId ? `${API_URL}${editingMemberId}/` : API_URL;
+    const response = await fetch(url, {
+      method,
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(formData)
+    });
+    if (response.ok) {
+      const savedMember = await response.json();
+      if (editingMemberId) {
+        setMembers(members.map((m) => m.id === editingMemberId ? savedMember : m));
+      } else {
+        setMembers([savedMember, ...members]);
+      }
+      setIsModalOpen(false);
     }
-    setIsModalOpen(false);
   };
   return /* @__PURE__ */ jsxs("div", {
     className: "min-h-screen bg-[#f8fafc] p-6 md:p-10 font-sans text-slate-900",
@@ -555,7 +575,7 @@ const route1 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProper
   __proto__: null,
   default: home
 }, Symbol.toStringTag, { value: "Module" }));
-const serverManifest = { "entry": { "module": "/assets/entry.client-BmDBpHZU.js", "imports": ["/assets/chunk-EPOLDU6W-Wp3N_t67.js"], "css": [] }, "routes": { "root": { "id": "root", "parentId": void 0, "path": "", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": true, "module": "/assets/root-CD0VWafI.js", "imports": ["/assets/chunk-EPOLDU6W-Wp3N_t67.js"], "css": ["/assets/root-CQw99d1_.css"], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/home": { "id": "routes/home", "parentId": "root", "path": void 0, "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/home-D2C6_HNa.js", "imports": ["/assets/chunk-EPOLDU6W-Wp3N_t67.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 } }, "url": "/assets/manifest-9f0dea9a.js", "version": "9f0dea9a", "sri": void 0 };
+const serverManifest = { "entry": { "module": "/assets/entry.client-BmDBpHZU.js", "imports": ["/assets/chunk-EPOLDU6W-Wp3N_t67.js"], "css": [] }, "routes": { "root": { "id": "root", "parentId": void 0, "path": "", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": true, "module": "/assets/root-CD0VWafI.js", "imports": ["/assets/chunk-EPOLDU6W-Wp3N_t67.js"], "css": ["/assets/root-CQw99d1_.css"], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/home": { "id": "routes/home", "parentId": "root", "path": void 0, "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/home-BfpSOWS9.js", "imports": ["/assets/chunk-EPOLDU6W-Wp3N_t67.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 } }, "url": "/assets/manifest-aa3e787a.js", "version": "aa3e787a", "sri": void 0 };
 const assetsBuildDirectory = "build/client";
 const basename = "/";
 const future = { "unstable_optimizeDeps": false, "unstable_subResourceIntegrity": false, "unstable_trailingSlashAwareDataRequests": false, "v8_middleware": false, "v8_splitRouteModules": false, "v8_viteEnvironmentApi": false };
