@@ -23,7 +23,7 @@ const ChangePasswordPage = () => {
     const token = localStorage.getItem('token');
 
     try {
-      const res = await fetch('http://localhost:8080/api/change-password/', {
+      const res = await fetch('https://adolf.nsaro.com/api/change-password/', {
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json',

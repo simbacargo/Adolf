@@ -195,7 +195,11 @@ const MemberList = () => {
   const today = /* @__PURE__ */ new Date();
   useEffect(() => {
     const fetchMembers = async () => {
-      const response = await fetch(API_URL);
+      const response = await fetch(API_URL, {
+        headers: {
+          "Authorization": `Token ${localStorage.getItem("token")}`
+        }
+      });
       const data = await response.json();
       setMembers(data);
     };
@@ -624,7 +628,7 @@ const LoginPage = () => {
     setIsLoading(true);
     setError("");
     try {
-      const res = await fetch("http://localhost:8080/api/login/", {
+      const res = await fetch("https://adolf.nsaro.com/api/login/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -779,7 +783,7 @@ const ChangePasswordPage = () => {
     });
     const token = localStorage.getItem("token");
     try {
-      const res = await fetch("http://localhost:8080/api/change-password/", {
+      const res = await fetch("https://adolf.nsaro.com/api/change-password/", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -916,7 +920,7 @@ const route3 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProper
   __proto__: null,
   default: ChangePasswordPage_default
 }, Symbol.toStringTag, { value: "Module" }));
-const serverManifest = { "entry": { "module": "/assets/entry.client-DA4iXG-e.js", "imports": ["/assets/chunk-EPOLDU6W-COH--sv6.js"], "css": [] }, "routes": { "root": { "id": "root", "parentId": void 0, "path": "", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": true, "module": "/assets/root-C301XSs6.js", "imports": ["/assets/chunk-EPOLDU6W-COH--sv6.js"], "css": ["/assets/root-Bia1qvlN.css"], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/home": { "id": "routes/home", "parentId": "root", "path": void 0, "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/home-BrgTsMxh.js", "imports": ["/assets/chunk-EPOLDU6W-COH--sv6.js", "/assets/createLucideIcon-zG5NMKvf.js", "/assets/circle-check-CEpkT5PV.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "login/login": { "id": "login/login", "parentId": "root", "path": "login", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/login-CT3riyMG.js", "imports": ["/assets/chunk-EPOLDU6W-COH--sv6.js", "/assets/createLucideIcon-zG5NMKvf.js", "/assets/loader-circle-C7Zx01Z4.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "login/ChangePasswordPage": { "id": "login/ChangePasswordPage", "parentId": "root", "path": "change-password", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/ChangePasswordPage-CxvB7Rwe.js", "imports": ["/assets/chunk-EPOLDU6W-COH--sv6.js", "/assets/createLucideIcon-zG5NMKvf.js", "/assets/circle-check-CEpkT5PV.js", "/assets/loader-circle-C7Zx01Z4.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 } }, "url": "/assets/manifest-a6288485.js", "version": "a6288485", "sri": void 0 };
+const serverManifest = { "entry": { "module": "/assets/entry.client-DA4iXG-e.js", "imports": ["/assets/chunk-EPOLDU6W-COH--sv6.js"], "css": [] }, "routes": { "root": { "id": "root", "parentId": void 0, "path": "", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": true, "module": "/assets/root-C301XSs6.js", "imports": ["/assets/chunk-EPOLDU6W-COH--sv6.js"], "css": ["/assets/root-Bia1qvlN.css"], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "routes/home": { "id": "routes/home", "parentId": "root", "path": void 0, "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/home-Msp2lRUc.js", "imports": ["/assets/chunk-EPOLDU6W-COH--sv6.js", "/assets/createLucideIcon-zG5NMKvf.js", "/assets/circle-check-CEpkT5PV.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "login/login": { "id": "login/login", "parentId": "root", "path": "login", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/login-CYjD4HRH.js", "imports": ["/assets/chunk-EPOLDU6W-COH--sv6.js", "/assets/createLucideIcon-zG5NMKvf.js", "/assets/loader-circle-C7Zx01Z4.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 }, "login/ChangePasswordPage": { "id": "login/ChangePasswordPage", "parentId": "root", "path": "change-password", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasClientMiddleware": false, "hasErrorBoundary": false, "module": "/assets/ChangePasswordPage-BZnZKzlA.js", "imports": ["/assets/chunk-EPOLDU6W-COH--sv6.js", "/assets/createLucideIcon-zG5NMKvf.js", "/assets/circle-check-CEpkT5PV.js", "/assets/loader-circle-C7Zx01Z4.js"], "css": [], "clientActionModule": void 0, "clientLoaderModule": void 0, "clientMiddlewareModule": void 0, "hydrateFallbackModule": void 0 } }, "url": "/assets/manifest-713a9a77.js", "version": "713a9a77", "sri": void 0 };
 const assetsBuildDirectory = "build/client";
 const basename = "/";
 const future = { "unstable_optimizeDeps": false, "unstable_subResourceIntegrity": false, "unstable_trailingSlashAwareDataRequests": false, "v8_middleware": false, "v8_splitRouteModules": false, "v8_viteEnvironmentApi": false };
