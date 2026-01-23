@@ -26,7 +26,7 @@ const generateMembers = () => {
 };
 
 const INITIAL_MEMBERS = generateMembers();
-const API_URL = 'http://localhost:8080/api/members/';
+const API_URL = 'https://adolf.nsaro.com/api/members/';
 const MemberList = () => {
   const [members, setMembers] = useState(INITIAL_MEMBERS);
   const [isModalOpen, setIsModalOpen] = useState(false);
