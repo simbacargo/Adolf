@@ -6,6 +6,9 @@ import tsconfigPaths from "vite-tsconfig-paths";
 export default defineConfig({
   plugins: [tailwindcss(), reactRouter(), tsconfigPaths()],
   server: {
+    allowedHosts: [
+      'reg.hgi.or.tz' // Add your specific host here
+    ],
     host: true,
     port: 4000,
   },

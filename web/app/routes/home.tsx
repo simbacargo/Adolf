@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Search, ChevronUp, ChevronDown, CheckCircle2, XCircle, Users, Calendar, UserPlus, X, Trash2, Edit3, Baby, Phone, UserCircle, CreditCard } from 'lucide-react';
 import { NavLink } from 'react-router';
 
-const INITIAL_MEMBERS = [];
+const INITIAL_MEMBERS: {}[]  = [{}];
 const API_URL = 'https://adolf.nsaro.com/api/members/';
 
 const MemberList = () => {
