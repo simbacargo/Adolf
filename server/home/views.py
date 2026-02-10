@@ -16,7 +16,7 @@ class MemberSerializer(serializers.ModelSerializer):
         model = Member
         fields = [
             'id', 'fullName', 'age', 'sex', 'maritalStatus', 
-            'children', 'phone', 'regDate', 'expDate', 'is_active'
+            'children', 'phone', 'regDate', 'expDate', 'is_active','membershipPlan'
         ]
 
 
