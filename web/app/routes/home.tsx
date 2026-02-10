@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Search, ChevronUp, ChevronDown, CheckCircle2, XCircle, Users, Calendar, UserPlus, X, Trash2, Edit3, Baby, Phone, UserCircle, CreditCard } from 'lucide-react';
 import { NavLink } from 'react-router';
-import { log } from 'console';
 
 
 const generateMembers = () => {
@@ -9,7 +8,7 @@ const generateMembers = () => {
   const lastNames = ['Kassim', 'Mbeki', 'Nyerere', 'Mlowo', 'Makamba', 'Mtungi', 'Chale', 'Sokoine', 'Mwinyi', 'Moyo'];
   const maritalOptions = ['Single', 'Married', 'Divorced', 'Widowed'];
   
-  return Array.from({ length: 100 }, (_, i) => {
+  return Array.from({ length: 1 }, (_, i) => {
     const regDate = new Date(2025, Math.floor(Math.random() * 6), Math.floor(Math.random() * 28));
     const expDate = new Date(regDate);
     expDate.setFullYear(expDate.getFullYear() + (Math.random() > 0.4 ? 1 : 0)); 
@@ -32,9 +31,6 @@ const API_URL = 'https://adolf.nsaro.com/api/members/';
 
 const MemberList = () => {
   const [members, setMembers] = useState(INITIAL_MEMBERS);
-  console.log('====================================');
-  console.log(members);
-  console.log('====================================');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingMemberId, setEditingMemberId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -68,6 +64,9 @@ useEffect(() => {
         }
 
         const data = await response.json();
+        console.log('====================================');
+        console.log(data);
+        console.log('====================================');
         setMembers(data);
       }
       catch (error) {
@@ -154,8 +153,8 @@ useEffect(() => {
         
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-6">
           <div>
-            <h1 className="text-4xl font-black text-slate-900 tracking-tight">Tanzania Registry</h1>
-            <p className="text-slate-500 font-medium">Community Member Management System</p>
+            <h1 className="text-4xl font-black text-slate-900 tracking-tight">HGI Foundation Tanzania</h1>
+            <p className="text-slate-500 font-medium">Membership Registry</p>
           </div>
           <div className="flex gap-3">
             <button onClick={openCreateModal} className="flex items-center justify-center gap-3 bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-2xl font-bold shadow-xl shadow-blue-200 transition-all active:scale-95">
@@ -200,7 +199,7 @@ useEffect(() => {
             <table className="w-full text-left border-separate border-spacing-0">
               <thead className="sticky top-0 z-30 bg-white/95 backdrop-blur-md">
                 <tr className="text-slate-400 text-[10px] uppercase tracking-[0.2em] font-black">
-                  {['fullName', 'membershipPlan', 'phone', 'expDate', 'isActive'].map((key) => (
+                  {['id','fullName', 'membershipPlan', 'phone', 'isActive'].map((key) => (
                     <th key={key} className="px-8 py-5 border-b border-slate-100 cursor-pointer hover:text-blue-600 transition-colors" onClick={() => setSortConfig({ key, direction: sortConfig.direction === 'asc' ? 'desc' : 'asc' })}>
                       <div className="flex items-center gap-2">
                         {key === 'membershipPlan' ? 'Plan' : key.replace(/([A-Z])/g, ' $1').trim()}
@@ -214,14 +213,15 @@ useEffect(() => {
               <tbody className="divide-y divide-slate-50">
                 {sortedMembers.map((m) => (
                   <tr key={m.id} className="group hover:bg-blue-50/40 transition-all">
+                    <td className="px-8 py-5 font-bold text-slate-800 whitespace-nowrap">HGI/REG/{m.id.toString().padStart(3, '0')}</td>
                     <td className="px-8 py-5 font-bold text-slate-800 whitespace-nowrap">{m.fullName}</td>
                     <td className="px-8 py-5">
                       <span className="px-3 py-1 bg-slate-100 text-slate-600 rounded-lg text-xs font-bold border border-slate-200">
-                        {m.membershipPlan || 'Basic 5,000 ($3)'}
+                        {m.membershipPlan || 'Basic 3,000 ($3)'}
                       </span>
                     </td>
                     <td className="px-8 py-5 font-mono text-sm text-slate-500">{m.phone}</td>
-                    <td className="px-8 py-5 text-slate-500 text-sm whitespace-nowrap">{m.expDate}</td>
+                    {/* <td className="px-8 py-5 text-slate-500 text-sm whitespace-nowrap">{m.expDate}</td> */}
                     <td className="px-8 py-5">
                       <span className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-black uppercase border ${m.isActive ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
                         {m.isActive ? <><span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Active</> : <><XCircle size={10} /> Expired</>}
@@ -265,8 +265,8 @@ useEffect(() => {
                 <div className="relative">
                    <select required className="w-full px-5 py-4 bg-blue-50/50 border-2 border-blue-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:bg-white outline-none font-bold text-blue-900 transition-all appearance-none"
                     value={formData.membershipPlan} onChange={e => setFormData({...formData, membershipPlan: e.target.value})}>
-                    <option value="Basic 5,000 ($3)">Basic Tier — 5,000 ( $5.00)</option>
-                    <option value="Standard 7,000 ($5)">Standard Tier — 7,000 ( $7.00)</option>
+                    <option value="Basic 3,000 ($3)">Basic Tier — 3,000 ( $5.00)</option>
+                    <option value="Standard 5,000 ($5)">Standard Tier — 5,000 ( $7.00)</option>
                     <option value="Premium 10,000 ($10)">Premium Tier —  10,000 ($10.00)</option>
                   </select>
                   <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-blue-400 pointer-events-none" size={20} />

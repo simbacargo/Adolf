@@ -23,6 +23,7 @@ class Member(models.Model):
     reg_date = models.DateField()
     exp_date = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
+    membershipPlan = models.CharField(max_length=255)
 
     @property
     def is_active(self):
